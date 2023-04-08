@@ -3,12 +3,11 @@ import { SearchAPI } from './js/searchAPI';
 import { Notify } from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import throttle from 'lodash.throttle';
 
 const searchApi = new SearchAPI();
 
 const gallarySection = document.querySelector('.gallery');
-const searchForm = document.querySelector('.search-form');
+const searchQuery = document.querySelector('.search-form');
 const btnLoadMore = document.querySelector('.load-more');
 
 let gallery = new SimpleLightbox('.gallery a', {
@@ -22,19 +21,19 @@ let gallery = new SimpleLightbox('.gallery a', {
   widthRatio: 0.9,
 });
 
-searchForm.addEventListener('submit', handleSearch);
+searchQuery.addEventListener('submit', handleSearch);
 btnLoadMore.addEventListener('click', handleLoadMore);
 
 async function handleSearch(e) {
   e.preventDefault();
   resetGallery();
   const {
-    elements: { searchForm },
+    elements: { searchQuery },
   } = e.currentTarget;
-  if (searchForm.value === '') {
+  if (searchQuery.value === '') {
     return Notify.warning('Please, enter your search request');
   }
-  searchApi.query = searchForm.value.trim();
+  searchApi.query = searchQuery.value.trim();
   try {
     const images = await searchApi.searchImages().then(data => {
       const items = data.data.hits;
@@ -67,7 +66,7 @@ function handleLoadMore() {
       if (data.data.totalHits <= searchApi.page * searchApi.per_page) {
         btnLoadMore.classList.add('is-hidden');
 
-        searchForm.reset();
+        searchQuery.reset();
         Notify.failure(
           "We're sorry, but you've reached the end of search results."
         );
@@ -100,7 +99,11 @@ function renderGallery(items) {
         views,
         webformatURL,
       }) =>
-        `<div class="photo-card"><a class="gallery__item" href="${largeImageURL}"><img class="gallery__image" src="${webformatURL}", alt="${tags} "loading="lazy" /></a><div class="info">
+        `<div class="photo-card">
+        <a class="gallery__item" href="${largeImageURL}">
+        <img class="gallery__image" src="${webformatURL}", alt="${tags} "loading="lazy" />
+        </a>
+        <div class="info">
     <p class="info-item">
       <b>Likes</b> ${likes}
     </p>
